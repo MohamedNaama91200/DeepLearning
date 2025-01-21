@@ -1,7 +1,4 @@
 import numpy as np
-import copy
-import matplotlib.pyplot as plt
-from utils import sigmoid
 from principal_RBM_alpha import RBM
 
 """
@@ -23,25 +20,40 @@ class DBN:
             rbm = RBM(p, q)
             self.rbms.append(rbm)
 
-    def train_DBN(self, X, learning_rate, len_batch, n_epochs,dbn_size):
+    def train_DBN(self, X, learning_rate, len_batch, n_epochs):
 
         #Greedy layer wise procedure
 
-        for l in range(len(dbn_size) - 1) :
+        for l in range(len(self.dbn_size) - 1) :
             self.rbms[l].train_RBM(X, learning_rate, len_batch, n_epochs,verbose=1)
             X = self.rbms[l].entree_sortie_RBM(X)
 
 
-    def generer_image_RBM(self, nb_images, nb_iter, size_img):
-        p, q = self.W.shape
+    def generer_image_DBN(self, X,nb_images, nb_iter, size_img):
+        p = self.dbn_size[0]  # Taille de la couche visible du premier RBM
         images = []
-        for i in range(nb_images):  # Gibbs
+
+        for i in range(nb_images):
+            # Initialisation aléatoire de la couche visible
             v = (np.random.rand(p) < 0.5) * 1
-            for j in range(nb_iter):
-                h = (np.random.rand(q) < self.entree_sortie_RBM(v)) * 1
-                v = (np.random.rand(p) < self.sortie_entree_RBM(h)) * 1
+
+            # Gibbs sampling sur toutes les couches
+            for _ in range(nb_iter):
+                # Propagation vers l'avant (visible -> caché)
+                h = v
+                for rbm in self.rbms:
+                    p_rbm, q_rbm = rbm.W.shape
+                    h = (np.random.rand(q_rbm) < rbm.entree_sortie_RBM(h)) * 1
+
+                # Propagation vers l'arrière (caché -> visible)
+                v = h
+                for rbm in reversed(self.rbms):
+                    p_rbm, q_rbm = rbm.W.shape
+                    v = (np.random.rand(p_rbm) < rbm.sortie_entree_RBM(v)) * 1
+
             v = v.reshape(size_img)
             images.append(v)
+
         return images
 
 

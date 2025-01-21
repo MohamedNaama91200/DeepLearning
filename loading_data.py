@@ -22,6 +22,8 @@ def load_idx3_ubyte(file_path='data/t10k-images.idx3-ubyte'):
         else:
             raise ValueError("Format de fichier .idx3-ubyte non reconnu")
 
+    data = np.copy(data)
+
     return data
 
 
@@ -52,12 +54,12 @@ def lire_alpha_digit(file_path='data/binaryalphadigs.mat',caractere=['0']):
 #For testing purpose
 if __name__ == "__main__":
     images = load_idx3_ubyte('data/t10k-images.idx3-ubyte')
-    labels = load_idx3_ubyte('data/t10k-images.idx3-ubyte')
+    labels = load_idx3_ubyte('data/t10k-labels-idx1-ubyte')
 
     mat_data,size_img = lire_alpha_digit('data/binaryalphadigs.mat',caractere=['A','Z'])
 
-    print("Images shape:", images.shape)
-    print("Labels shape:", labels.shape)
-    print("Mat data length:", size_img)
-    print(mat_data)
+    print("Images shape:", images[0].shape)
+    print("Labels shape:", labels[0])
+    #print("Mat data length:", size_img)
+    #print(mat_data)
 

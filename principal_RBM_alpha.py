@@ -1,6 +1,5 @@
 import numpy as np
 import copy
-import matplotlib.pyplot as plt
 from utils import sigmoid
 
 
@@ -60,7 +59,7 @@ class RBM:
             losses.append(loss)
             if i % 10 == 0 and verbose: #verbose for progression bar
                 print("epoch " + str(i) + "/" + str(n_epochs) + " - loss : " + str(loss))
-    def generer_image_RBM(self, nb_images, nb_iter, size_img):
+    def generer_image_RBM(self,X, nb_images, nb_iter, size_img):
         p, q = self.W.shape
         images = []
         for i in range(nb_images):  # Gibbs
@@ -69,7 +68,9 @@ class RBM:
                 h = (np.random.rand(q) < self.entree_sortie_RBM(v)) * 1
                 v = (np.random.rand(p) < self.sortie_entree_RBM(h)) * 1
             v = v.reshape(size_img)
+
             images.append(v)
+
         return images
 
 
