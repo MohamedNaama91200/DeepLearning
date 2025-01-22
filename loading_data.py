@@ -22,7 +22,7 @@ def load_idx3_ubyte(file_path='data/t10k-images.idx3-ubyte'):
         else:
             raise ValueError("Format de fichier .idx3-ubyte non reconnu")
 
-    data = np.copy(data)
+    data = np.copy(data) #Writeable =TRUE
 
     return data
 
@@ -46,9 +46,6 @@ def lire_alpha_digit(file_path='data/binaryalphadigs.mat',caractere=['0']):
     X=np.concatenate(X).reshape((X.shape[0],320))
 
     return X,size_img
-
-
-
 
 
 #For testing purpose

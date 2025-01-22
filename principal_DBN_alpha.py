@@ -25,11 +25,11 @@ class DBN:
         #Greedy layer wise procedure
 
         for l in range(len(self.dbn_size) - 1) :
-            self.rbms[l].train_RBM(X, learning_rate, len_batch, n_epochs,verbose=1)
+            self.rbms[l].train_RBM(X, learning_rate, len_batch, n_epochs)
             X = self.rbms[l].entree_sortie_RBM(X)
 
 
-    def generer_image_DBN(self, X,nb_images, nb_iter, size_img):
+    def generer_image_DBN(self,nb_images, nb_iter, size_img):
         p = self.dbn_size[0]  # Taille de la couche visible du premier RBM
         images = []
 
@@ -55,5 +55,23 @@ class DBN:
             images.append(v)
 
         return images
+
+if __name__ == "__main__":
+
+    """
+    Training DBN
+    """
+    from loading_data import lire_alpha_digit
+    from utils import plot_images
+
+    X, size_img = lire_alpha_digit(caractere=['A'])
+
+    dbn_size = [320, 200, 100]
+    dbn = DBN(dbn_size) #Instance of RBM
+    dbn.train_DBN(X, learning_rate=10**(-2), len_batch=10, n_epochs=1000)
+
+    generated_images = dbn.generer_image_DBN(nb_images=10, nb_iter=200, size_img=size_img)
+    plot_images(generated_images, database='BinaryAlphaDigit')
+
 
 

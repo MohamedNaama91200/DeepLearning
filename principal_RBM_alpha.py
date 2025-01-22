@@ -19,7 +19,7 @@ class RBM:
     def sortie_entree_RBM(self, H):
         return sigmoid(H @ self.W.T + self.a)
 
-    def train_RBM(self, X, learning_rate, len_batch, n_epochs,verbose=1):
+    def train_RBM(self, X, learning_rate, len_batch, n_epochs):
         p, q = self.W.shape
 
         weights = []
@@ -57,9 +57,10 @@ class RBM:
             X_rec = self.sortie_entree_RBM(H)
             loss = np.mean((X - X_rec) ** 2) #quadratic norm
             losses.append(loss)
-            if i % 10 == 0 and verbose: #verbose for progression bar
-                print("epoch " + str(i) + "/" + str(n_epochs) + " - loss : " + str(loss))
-    def generer_image_RBM(self,X, nb_images, nb_iter, size_img):
+            print("epoch " + str(i) + "/" + str(n_epochs) + " - Loss RBM : " + str(loss))
+
+
+    def generer_image_RBM(self, nb_images, nb_iter, size_img):
         p, q = self.W.shape
         images = []
         for i in range(nb_images):  # Gibbs
@@ -72,5 +73,25 @@ class RBM:
             images.append(v)
 
         return images
+
+
+if __name__ == "__main__":
+
+    from loading_data import lire_alpha_digit
+    from utils import plot_images
+
+    X, size_img = lire_alpha_digit(caractere=['A'])
+
+    """
+    Training RBM 
+    """
+
+    p, q = size_img[0] * size_img[1], 100
+    rbm = RBM(p, q)  # Instance of RBM
+    rbm.train_RBM(X, learning_rate=10 ** (-2), len_batch=10, n_epochs=1000, verbose=1)
+
+    generated_images_rbm = rbm.generer_image_RBM(nb_images=10, nb_iter=200, size_img=size_img)
+    plot_images(generated_images_rbm, database='BinaryAlphaDigit')
+
 
 
