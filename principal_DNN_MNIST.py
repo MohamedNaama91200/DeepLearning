@@ -46,20 +46,17 @@ class DNN:
             labels (np.ndarray): one-hot encoded labels.
         """
 
-        n = X.shape[0]
-
-        labelized_data = list(zip(X, labels))
+        n_samples = X.shape[0]
 
         for epoch in range(n_epochs):
-            np.random.shuffle(labelized_data)
-            X_shuffled, y_shuffled = zip(*labelized_data)
+            indices = np.random.permutation(n_samples)
+            X_shuffled = X[indices]
+            y_shuffled = labels[indices]
 
-            X_shuffled = np.array(X_shuffled)
-            y_shuffled = np.array(y_shuffled)
+            for ith_batch in range(0, n_samples, len_batch):
 
-            for ith_batch in range(0, n, len_batch):
-                X_batch = X_shuffled[ith_batch:min(ith_batch + len_batch, n), :]
-                y_batch = y_shuffled[ith_batch:min(ith_batch + len_batch, n)]
+                X_batch = X_shuffled[ith_batch:ith_batch + len_batch]
+                y_batch = y_shuffled[ith_batch:ith_batch + len_batch]
 
                 # Forward pass
                 outputs = self.entree_sortie_reseau(X_batch)
@@ -139,7 +136,7 @@ if __name__ == "__main__":
     print(
         "----------------------------------------------------- Error Rate -----------------------------------------------------")
     error_rate = dnn_pretrained.test_DNN(test_images, test_labels)
-    print(f"Error rate = {error_rate}")
+    print(f"Error rate: {error_rate*100}%")
 
 
 
