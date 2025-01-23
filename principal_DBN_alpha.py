@@ -9,7 +9,6 @@ from utils import plot_images
 DBN Class Structure
 """
 
-
 class DBN:
     def __init__(self, dbn_size):
         """
@@ -27,7 +26,7 @@ class DBN:
 
     def train_DBN(self, X, learning_rate, len_batch, n_epochs, verbose=1):
 
-        tmp = copy.deepcopy(X)
+        tmp = X.copy()
 
         # Greedy layer wise procedure
         for l in range(len(self.dbn_size) - 1):
@@ -37,33 +36,32 @@ class DBN:
             tmp = self.rbms[l].entree_sortie_RBM(tmp)
 
     def generer_image_DBN(self, nb_images, nb_iter):
-
-        p = self.dbn_size[0]  # Size of the visible layer of the first RBM
         images = []
 
         for i in range(nb_images):
-            # Random initialization of the visible layer
+
+            # Gibbs sur la derniere couche cachée
+            top_rbm = self.rbms[-1]
+            p, q = top_rbm.W.shape
+
+            # Initialisation aléatoire de la couche visible
             v = (np.random.rand(p) < 0.5) * 1
 
-            # Gibbs sampling across all layers
             for _ in range(nb_iter):
-                # Forward propagation (visible -> hidden)
-                h = v
-                for rbm in self.rbms:
-                    p_rbm, q_rbm = rbm.W.shape
-                    h = (np.random.rand(q_rbm) < rbm.entree_sortie_RBM(h)) * 1
+                h = (np.random.rand(q) < top_rbm.entree_sortie_RBM(v)) * 1
+                v = (np.random.rand(p) < top_rbm.sortie_entree_RBM(h)) * 1
 
-                # Backward propagation (hidden -> visible)
-                v = h
-                for rbm in reversed(self.rbms):
-                    p_rbm, q_rbm = rbm.W.shape
-                    v = (np.random.rand(p_rbm) < rbm.sortie_entree_RBM(v)) * 1
+            # Propagation vers l'arrière (caché -> visible)
+            h = v
+            for rbm in reversed(self.rbms[:-1]):
+                p, q = rbm.W.shape
+                h = (np.random.rand(p) < rbm.sortie_entree_RBM(h)) * 1
 
-            images.append(v)
+            images.append(h)
 
         return images
 
-if __name__ == "main":
+if __name__ == "__main__":
     X, size_img = lire_alpha_digit('data/binaryalphadigs.mat', caractere=['A'])
 
     dbn_size = [320, 200, 100]

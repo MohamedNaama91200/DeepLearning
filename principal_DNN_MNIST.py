@@ -10,7 +10,6 @@ from utils import calcul_softmax, one_hot_encoding
 DNN Class Structure
 """
 
-
 class DNN:
     def __init__(self, network_size):
         """
@@ -32,7 +31,7 @@ class DNN:
 
         outputs = [X]
 
-        h = copy.deepcopy(X)
+        h = X.copy()
         for rbm in self.dbn.rbms:
             h = rbm.entree_sortie_RBM(h)
             outputs.append(h)
@@ -67,17 +66,17 @@ class DNN:
                 outputs = self.entree_sortie_reseau(X_batch)
                 y_hat = outputs[-1]
 
+                # Classification layer gradients
                 c = y_hat - y_batch
 
-                # Backward pass
                 grad_w = outputs[-2].T @ c / m
                 grad_b = np.mean(c, axis=0)
-
-                weight = copy.deepcopy(self.W_l)
 
                 self.W_l -= learning_rate * grad_w
                 self.b_l -= learning_rate * grad_b
 
+                # Backward pass through hidden layers
+                weight = self.W_l.copy()
                 for l in range(len(outputs) - 2, 0, -1):
                     x = outputs[l]
                     c = (c @ weight.T) * (x * (1 - x))
@@ -87,11 +86,9 @@ class DNN:
                     grad_b = np.mean(c, axis=0)
 
                     rbm = self.dbn.rbms[l - 1]
-                    weight = copy.deepcopy(rbm.W)
-
-                    # Update RBM weights and biases
                     rbm.W -= learning_rate * grad_w
                     rbm.b -= learning_rate * grad_b
+                    weight = rbm.W
 
             # Reconstruction of the Cross-entropy loss
             outputs = self.entree_sortie_reseau(X_shuffled)
@@ -116,9 +113,8 @@ class DNN:
         y_hat = outputs[-1]
         label_estimated = np.argmax(y_hat, axis=1)
 
-        errors = [0 if x == y else 1 for (x, y) in zip(labels, label_estimated)]
-
-        return sum(errors) / len(errors)
+        errors = (labels != label_estimated).astype(int)
+        return np.mean(errors)
 
 if __name__ == "__main__":
     nb_classes = 10
@@ -132,17 +128,17 @@ if __name__ == "__main__":
 
     nb_features = train_size_img[0] * train_size_img[1]
 
-    dnn_pretrained = DNN(network_size=[nb_features, 200, 200, nb_classes])
+    dnn_pretrained = DNN(network_size=[nb_features, 200, nb_classes])
     print(
         "----------------------------------------------------- Pre-training -----------------------------------------------------")
-    dnn_pretrained.pretrain_DNN(train_images, learning_rate=1e-2, len_batch=32, n_epochs=10)
+    dnn_pretrained.pretrain_DNN(train_images, learning_rate=1e-1, len_batch=100, n_epochs=100)
     print(
         "----------------------------------------------------- Back-Propragation -----------------------------------------------------")
-    dnn_pretrained.retropropagation(train_images, encoded_train_labels, learning_rate=1e-2, len_batch=32, n_epochs=20)
+    dnn_pretrained.retropropagation(train_images, encoded_train_labels, learning_rate=1e-1, len_batch=100, n_epochs=200)
     print(
         "----------------------------------------------------- Error Rate -----------------------------------------------------")
     error_rate = dnn_pretrained.test_DNN(test_images, test_labels)
-    print(f"Error rate: {error_rate*100}%")
+    print(f"Error rate: {error_rate * 100}%")
 
 
 

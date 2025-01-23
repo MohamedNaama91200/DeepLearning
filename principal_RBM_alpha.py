@@ -8,7 +8,6 @@ from utils import sigmoid, plot_images
 RBM Class Structure
 """
 
-
 class RBM:
     def __init__(self, p, q):
         self.a = np.zeros(p)
@@ -33,18 +32,18 @@ class RBM:
 
             for ith_batch in range(0, n_samples, len_batch):
                 X_batch = X_shuffled[ith_batch:ith_batch + len_batch]
-                t_batch_i = X_batch.shape[0]
+                m = X_batch.shape[0]
 
                 # Contrastive-Divergence-1 algorithm to estimate the gradient
-                V0 = copy.deepcopy(X_batch)
+                V0 = X_batch.copy()
 
                 pH_V0 = self.entree_sortie_RBM(V0)
                 # draw from pH_V0
-                H0 = (np.random.rand(t_batch_i, q) < pH_V0) * 1
+                H0 = (np.random.rand(m, q) < pH_V0) * 1
 
                 pV_H0 = self.sortie_entree_RBM(H0)
                 # draw from pV_H0
-                V1 = (np.random.rand(t_batch_i, p) < pV_H0) * 1
+                V1 = (np.random.rand(m, p) < pV_H0) * 1
 
                 pH_V1 = self.entree_sortie_RBM(V1)
 
@@ -77,7 +76,7 @@ class RBM:
 
         return images
 
-if __name__ == "main":
+if __name__ == "__main__":
     X, size_img = lire_alpha_digit('data/binaryalphadigs.mat', caractere=['A'])
 
     nb_features = size_img[0] * size_img[1]
