@@ -5,6 +5,8 @@ import pandas as pd
 Useful functions
 """
 def sigmoid(x):
+    x = np.clip(x, -500, 500)  # Limite les valeurs de x pour éviter l'overflow
+
     return 1 / (1 + np.exp(-x))
 
 def plot_images(X,database='BinaryAlphaDigit') :
