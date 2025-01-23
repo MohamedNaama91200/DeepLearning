@@ -86,7 +86,7 @@ class DNN:
 
                     h_prev = sortie_couche[l-1]
                     h_current = sortie_couche[l]
-                    d_h *= utils.sigmoid_derivative(h_current)
+                    d_h *= h_current*(1-h_current) # dérivée de la sigmoide
                     d_weights = h_prev.T @ d_h #formule derivation de d_weights cf cours
                     d_bias = np.sum(d_h, axis=0)
 
@@ -135,14 +135,12 @@ if __name__ == "__main__":
 
 
     #Training DNN
-    dnn_without_pretraining = DNN(network_layer=[784,128, 64, 10],n_classes=10)
-    dnn_with_pretraining = DNN(network_layer=[784,128, 64, 10],n_classes=10)
+    dnn_without_pretraining = DNN(network_layer=[784, 128, 64, 10],n_classes=10)
+    dnn_with_pretraining = DNN(network_layer=[784, 128, 64, 10],n_classes=10)
 
-    dnn_with_pretraining.pretrain_DNN(images_train,learning_rate=10**(-1), len_batch=10, n_epochs=2)
-    #generated_images = dnn_with_pretraining.dbn_without_classif_layer.generer_image_DBN(nb_images=10, nb_iter=500)
-    #utils.plot_images(generated_images,database='MNIST')
-    dnn_with_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-1), len_batch=5, n_epochs=2)
-    dnn_without_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-1), len_batch=5, n_epochs=2)
+    dnn_with_pretraining.pretrain_DNN(images_train,learning_rate=10**(-2), len_batch=10, n_epochs=5)
+    dnn_with_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-2), len_batch=10, n_epochs=5)
+    dnn_without_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-2), len_batch=10, n_epochs=5)
 
     #Testing DNN on test set
     error = dnn_with_pretraining.test_DNN(X_test=images_test,y_test=labels_test_encoded)
@@ -150,6 +148,12 @@ if __name__ == "__main__":
 
     error = dnn_without_pretraining.test_DNN(X_test=images_test,y_test=labels_test_encoded)
     print(f"Error ratio without pre-training {error}")
+
+    generated_images = dnn_with_pretraining.dbn_without_classif_layer.generer_image_DBN(nb_images=10, nb_iter=500)
+    utils.plot_images(generated_images,database='MNIST')
+
+
+
 
 
 

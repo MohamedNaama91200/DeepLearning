@@ -37,11 +37,6 @@ def calcul_entropie_croisee(y_pred, y_batch) :
 
     return loss
 
-
-def sigmoid_derivative(x) :
-
-    return sigmoid(x) * (1-sigmoid(x))
-
 def binarisation(y) :
 
     return pd.get_dummies(y, sparse=False)
