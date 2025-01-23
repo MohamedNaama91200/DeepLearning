@@ -5,13 +5,15 @@ import pandas as pd
 Useful functions
 """
 def sigmoid(x):
+    x = np.clip(x, -500, 500)  # Limite les valeurs de x pour éviter l'overflow
+
     return 1 / (1 + np.exp(-x))
 
 def plot_images(X,database='BinaryAlphaDigit') :
 
     if database == 'BinaryAlphaDigit' :
         for image in X:
-            image = image.reshape(320)
+            image = image.reshape((20,16))
             plt.imshow(image, cmap='gray')
             plt.show()
 
@@ -34,11 +36,6 @@ def calcul_entropie_croisee(y_pred, y_batch) :
     loss = -np.mean(y_batch * np.log(y_pred) + (1 - y_batch) * np.log(1 - y_pred))
 
     return loss
-
-
-def sigmoid_derivative(x) :
-
-    return sigmoid(x) * (1-sigmoid(x))
 
 def binarisation(y) :
 

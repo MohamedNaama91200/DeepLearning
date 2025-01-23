@@ -1,6 +1,4 @@
 from loading_data import lire_alpha_digit
-from principal_RBM_alpha import RBM
-from principal_DBN_alpha import DBN
 from utils import plot_images
 import numpy as np
 

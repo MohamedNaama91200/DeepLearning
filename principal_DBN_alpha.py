@@ -29,32 +29,31 @@ class DBN:
             X = self.rbms[l].entree_sortie_RBM(X)
 
 
-    def generer_image_DBN(self,nb_images, nb_iter, size_img):
-        p = self.dbn_size[0]  # Taille de la couche visible du premier RBM
+    def generer_image_DBN(self,nb_images, nb_iter):
         images = []
 
         for i in range(nb_images):
+
+            #Gibbs sur la derniere couche cachée
+            top_rbm = self.rbms[-1]
+            p_top_rbm, q_top_rbm = top_rbm.W.shape
             # Initialisation aléatoire de la couche visible
-            v = (np.random.rand(p) < 0.5) * 1
+            v = (np.random.rand(p_top_rbm) < 0.5) * 1
 
-            # Gibbs sampling sur toutes les couches
             for _ in range(nb_iter):
-                # Propagation vers l'avant (visible -> caché)
-                h = v
-                for rbm in self.rbms:
-                    p_rbm, q_rbm = rbm.W.shape
-                    h = (np.random.rand(q_rbm) < rbm.entree_sortie_RBM(h)) * 1
+                h = (np.random.rand(q_top_rbm) < top_rbm.entree_sortie_RBM(v)) * 1
+                v = (np.random.rand(p_top_rbm) < top_rbm.sortie_entree_RBM(h)) * 1
 
-                # Propagation vers l'arrière (caché -> visible)
-                v = h
-                for rbm in reversed(self.rbms):
-                    p_rbm, q_rbm = rbm.W.shape
-                    v = (np.random.rand(p_rbm) < rbm.sortie_entree_RBM(v)) * 1
+            # Propagation vers l'arrière (caché -> visible)
+            top_sample = v
+            for rbm in reversed(self.rbms[:-1]):
+                p_rbm, q_rbm = rbm.W.shape
+                top_sample = (np.random.rand(p_rbm) < rbm.sortie_entree_RBM(top_sample)) * 1
 
-            v = v.reshape(size_img)
-            images.append(v)
+            images.append(top_sample)
 
         return images
+
 
 if __name__ == "__main__":
 
@@ -66,11 +65,12 @@ if __name__ == "__main__":
 
     X, size_img = lire_alpha_digit(caractere=['A'])
 
+
     dbn_size = [320, 200, 100]
     dbn = DBN(dbn_size) #Instance of RBM
-    dbn.train_DBN(X, learning_rate=10**(-2), len_batch=10, n_epochs=1000)
+    dbn.train_DBN(X, learning_rate=10**(-2), len_batch=10, n_epochs=500)
 
-    generated_images = dbn.generer_image_DBN(nb_images=10, nb_iter=200, size_img=size_img)
+    generated_images = dbn.generer_image_DBN(nb_images=10, nb_iter=200)
     plot_images(generated_images, database='BinaryAlphaDigit')
 
 

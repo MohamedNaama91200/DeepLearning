@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 import utils
 from principal_DBN_alpha import DBN
@@ -18,20 +20,22 @@ class DNN:
         self.n_classes = n_classes
         self.W = {i+1 : rbm.W for i,rbm in enumerate(self.dbn_without_classif_layer.rbms)}
         self.b = {i+1: rbm.b for i,rbm in enumerate(self.dbn_without_classif_layer.rbms)}
-        self.W[self.length_network-1] = np.random.randn(network_layer[-2], n_classes) * 0.01 # Poids couche classif (loi normale)
+        self.W[self.length_network-1] = np.random.randn(network_layer[-2], n_classes) * np.sqrt(0.01) # Poids couche classif (loi normale)
         self.b[self.length_network-1] = np.zeros(n_classes)  # Biais de la couche de classification
 
 
     def pretrain_DNN(self,X,learning_rate, len_batch, n_epochs) :
-
-        self.dbn_without_classif_layer.train_DBN(X,learning_rate, len_batch, n_epochs)
+        X_input = copy.deepcopy(X)
+        self.dbn_without_classif_layer.train_DBN(X_input,learning_rate, len_batch, n_epochs)
 
     def entree_sortie_reseau(self,X):
 
-        sortie_couche = [X]
-        h = X
-        for rbm in self.dbn_without_classif_layer.rbms :
-            h = rbm.entree_sortie_RBM(h)
+        X_input = copy.deepcopy(X)
+        sortie_couche = [X_input]
+        h = X_input
+        #parcours des couches cachées
+        for l in range(1, self.length_network-1):
+            h = utils.sigmoid(h @ self.W[l] + self.b[l])
             sortie_couche.append(h)
 
         probs_sortie = utils.calcul_softmax(h @ self.W[self.length_network-1] + self.b[self.length_network-1])
@@ -78,9 +82,11 @@ class DNN:
 
                 # Rétropropagation à travers les couches cachées
                 d_h = d_logits @ self.W[self.length_network-1].T
-                for l in range(self.length_network-2,1,-1) :
+                for l in range(self.length_network-2,0,-1) :
+
                     h_prev = sortie_couche[l-1]
-                    d_h *= utils.sigmoid_derivative(h_prev)
+                    h_current = sortie_couche[l]
+                    d_h *= h_current*(1-h_current) # dérivée de la sigmoide
                     d_weights = h_prev.T @ d_h #formule derivation de d_weights cf cours
                     d_bias = np.sum(d_h, axis=0)
 
@@ -129,15 +135,26 @@ if __name__ == "__main__":
 
 
     #Training DNN
-    dnn = DNN(network_layer=[784, 200, 10],n_classes=10)
-    #dnn.pretrain_DNN(images_train,learning_rate=10**(-2), len_batch=10, n_epochs=2)
-    #generated_images = dnn.dbn_without_classif_layer.generer_image_DBN(nb_images=10, nb_iter=200, size_img=784)
-    #utils.plot_images(generated_images,database='MNIST')
-    dnn.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-2), len_batch=10, n_epochs=2)
+    dnn_without_pretraining = DNN(network_layer=[784, 128, 64, 10],n_classes=10)
+    dnn_with_pretraining = DNN(network_layer=[784, 128, 64, 10],n_classes=10)
+
+    dnn_with_pretraining.pretrain_DNN(images_train,learning_rate=10**(-2), len_batch=10, n_epochs=5)
+    dnn_with_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-2), len_batch=10, n_epochs=5)
+    dnn_without_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-2), len_batch=10, n_epochs=5)
 
     #Testing DNN on test set
-    error = dnn.test_DNN(X_test=images_test,y_test=labels_test_encoded)
-    print(f"Error ratio {error}")
+    error = dnn_with_pretraining.test_DNN(X_test=images_test,y_test=labels_test_encoded)
+    print(f"Error ratio with pre training {error}")
+
+    error = dnn_without_pretraining.test_DNN(X_test=images_test,y_test=labels_test_encoded)
+    print(f"Error ratio without pre-training {error}")
+
+    generated_images = dnn_with_pretraining.dbn_without_classif_layer.generer_image_DBN(nb_images=10, nb_iter=500)
+    utils.plot_images(generated_images,database='MNIST')
+
+
+
+
 
 
 

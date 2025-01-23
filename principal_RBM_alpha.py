@@ -60,7 +60,7 @@ class RBM:
             print("epoch " + str(i) + "/" + str(n_epochs) + " - Loss RBM : " + str(loss))
 
 
-    def generer_image_RBM(self, nb_images, nb_iter, size_img):
+    def generer_image_RBM(self, nb_images, nb_iter):
         p, q = self.W.shape
         images = []
         for i in range(nb_images):  # Gibbs
@@ -68,7 +68,6 @@ class RBM:
             for j in range(nb_iter):
                 h = (np.random.rand(q) < self.entree_sortie_RBM(v)) * 1
                 v = (np.random.rand(p) < self.sortie_entree_RBM(h)) * 1
-            v = v.reshape(size_img)
 
             images.append(v)
 
@@ -88,9 +87,9 @@ if __name__ == "__main__":
 
     p, q = size_img[0] * size_img[1], 100
     rbm = RBM(p, q)  # Instance of RBM
-    rbm.train_RBM(X, learning_rate=10 ** (-2), len_batch=10, n_epochs=1000, verbose=1)
+    rbm.train_RBM(X, learning_rate=10 ** (-2), len_batch=10, n_epochs=1000)
 
-    generated_images_rbm = rbm.generer_image_RBM(nb_images=10, nb_iter=200, size_img=size_img)
+    generated_images_rbm = rbm.generer_image_RBM(nb_images=10, nb_iter=200)
     plot_images(generated_images_rbm, database='BinaryAlphaDigit')
 
 
