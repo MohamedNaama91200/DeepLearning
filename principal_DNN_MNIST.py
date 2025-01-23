@@ -82,9 +82,11 @@ class DNN:
 
                 # Rétropropagation à travers les couches cachées
                 d_h = d_logits @ self.W[self.length_network-1].T
-                for l in range(self.length_network-2,1,-1) :
+                for l in range(self.length_network-2,0,-1) :
+
                     h_prev = sortie_couche[l-1]
-                    d_h *= utils.sigmoid_derivative(h_prev)
+                    h_current = sortie_couche[l]
+                    d_h *= utils.sigmoid_derivative(h_current)
                     d_weights = h_prev.T @ d_h #formule derivation de d_weights cf cours
                     d_bias = np.sum(d_h, axis=0)
 
@@ -133,14 +135,14 @@ if __name__ == "__main__":
 
 
     #Training DNN
-    dnn_without_pretraining = DNN(network_layer=[784, 200, 10],n_classes=10)
-    dnn_with_pretraining = DNN(network_layer=[784, 128, 64, 10],n_classes=10)
+    dnn_without_pretraining = DNN(network_layer=[784,128, 64, 10],n_classes=10)
+    dnn_with_pretraining = DNN(network_layer=[784,128, 64, 10],n_classes=10)
 
-    dnn_with_pretraining.pretrain_DNN(images_train,learning_rate=10**(-1), len_batch=10, n_epochs=5)
-    generated_images = dnn_with_pretraining.dbn_without_classif_layer.generer_image_DBN(nb_images=10, nb_iter=500)
-    utils.plot_images(generated_images,database='MNIST')
-    dnn_with_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-1), len_batch=10, n_epochs=30)
-    dnn_without_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-1), len_batch=10, n_epochs=30)
+    dnn_with_pretraining.pretrain_DNN(images_train,learning_rate=10**(-1), len_batch=10, n_epochs=2)
+    #generated_images = dnn_with_pretraining.dbn_without_classif_layer.generer_image_DBN(nb_images=10, nb_iter=500)
+    #utils.plot_images(generated_images,database='MNIST')
+    dnn_with_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-1), len_batch=5, n_epochs=2)
+    dnn_without_pretraining.retropropagation(X=images_train,y=labels_train_encoded,learning_rate=10**(-1), len_batch=5, n_epochs=2)
 
     #Testing DNN on test set
     error = dnn_with_pretraining.test_DNN(X_test=images_test,y_test=labels_test_encoded)
