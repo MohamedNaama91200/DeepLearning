@@ -64,6 +64,8 @@ fig.suptitle('Error Rate vs. Number of Layers in DBN', fontsize=14)
 plt.tight_layout()
 plt.subplots_adjust(top=0.85)
 
+plt.savefig('img/Number_Layers.png')
+
 plt.show()
 
 ######################################################################################################################
@@ -102,6 +104,8 @@ fig.suptitle('Error Rate vs. Number of Neurons of Hidden Layers in DBN', fontsiz
 plt.tight_layout()
 plt.subplots_adjust(top=0.85)
 
+plt.savefig('img/Number_Neurons.png')
+
 plt.show()
 
 ######################################################################################################################
@@ -135,10 +139,12 @@ axs[1].set_ylabel('Error Rate')
 axs[1].grid(True)
 axs[1].legend()
 
-fig.suptitle('Error Rate vs. Number of Neurons of Hidden Layers in DBN', fontsize=14)
+fig.suptitle('Error Rate vs. Number of Training Data', fontsize=14)
 
 plt.tight_layout()
 plt.subplots_adjust(top=0.85)
+
+plt.savefig('img/Number_Data.png')
 
 plt.show()
 

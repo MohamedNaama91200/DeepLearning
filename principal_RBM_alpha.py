@@ -24,13 +24,15 @@ class RBM:
     def train_RBM(self, X, learning_rate, len_batch, n_epochs, verbose=1):
         p, q = self.W.shape
 
-        for i in range(n_epochs):
+        n_samples = X.shape[0]
 
-            np.random.shuffle(X)
+        for epoch in range(n_epochs):
 
-            n = X.shape[0]
-            for ith_batch in range(0, n, len_batch):
-                X_batch = X[ith_batch:min(ith_batch + len_batch, n), :]
+            indices = np.random.permutation(n_samples)
+            X_shuffled = X[indices]
+
+            for ith_batch in range(0, n_samples, len_batch):
+                X_batch = X_shuffled[ith_batch:ith_batch + len_batch]
                 t_batch_i = X_batch.shape[0]
 
                 # Contrastive-Divergence-1 algorithm to estimate the gradient
@@ -55,12 +57,12 @@ class RBM:
                 self.W += learning_rate * grad_W
 
             # Reconstruction's loss
-            H = self.entree_sortie_RBM(X)
+            H = self.entree_sortie_RBM(X_shuffled)
             X_rec = self.sortie_entree_RBM(H)
-            loss = np.mean((X - X_rec) ** 2)  # quadratic norm
+            loss = np.mean((X_shuffled - X_rec) ** 2)  # quadratic norm
 
-            if i % 10 == 0 and verbose:  # verbose for progression bar
-                print(f"Epoch {i + 1}/{n_epochs}, Loss: {loss:.4f}")
+            if epoch % 10 == 0 and verbose:  # verbose for progression bar
+                print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {loss:.4f}")
 
     def generer_image_RBM(self, nb_images, nb_iter):
         p, q = self.W.shape
@@ -74,7 +76,6 @@ class RBM:
             images.append(v)
 
         return images
-
 
 if __name__ == "main":
     X, size_img = lire_alpha_digit('data/binaryalphadigs.mat', caractere=['A'])

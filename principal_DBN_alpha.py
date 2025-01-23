@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 
 from loading_data import lire_alpha_digit
@@ -25,12 +26,15 @@ class DBN:
             self.rbms.append(rbm)
 
     def train_DBN(self, X, learning_rate, len_batch, n_epochs, verbose=1):
+
+        tmp = copy.deepcopy(X)
+
         # Greedy layer wise procedure
         for l in range(len(self.dbn_size) - 1):
             if verbose:
                 print(f"Train RBM {l + 1}/{len(self.dbn_size) - 1}\t")
-            self.rbms[l].train_RBM(X, learning_rate, len_batch, n_epochs, verbose)
-            X = self.rbms[l].entree_sortie_RBM(X)
+            self.rbms[l].train_RBM(tmp, learning_rate, len_batch, n_epochs, verbose)
+            tmp = self.rbms[l].entree_sortie_RBM(tmp)
 
     def generer_image_DBN(self, nb_images, nb_iter):
 

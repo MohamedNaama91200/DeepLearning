@@ -1,3 +1,5 @@
+import copy
+
 import numpy as np
 
 from loading_data import process_images_MNIST, load_idx3_ubyte
@@ -7,6 +9,7 @@ from utils import calcul_softmax, one_hot_encoding
 """
 DNN Class Structure
 """
+
 
 class DNN:
     def __init__(self, network_size):
@@ -19,8 +22,8 @@ class DNN:
         self.W_l = np.random.randn(network_size[-2], nb_classes) * np.sqrt(0.01)  # Weights for classification layer
         self.b_l = np.zeros(nb_classes)  # Bias for classification layer
 
-    def pretrain_DNN(self, X,learning_rate, len_batch, n_epochs, verbose=1):
-        self.dbn.train_DBN(X,learning_rate, len_batch, n_epochs, verbose)
+    def pretrain_DNN(self, X, learning_rate, len_batch, n_epochs, verbose=1):
+        self.dbn.train_DBN(X, learning_rate, len_batch, n_epochs, verbose)
 
     def entree_sortie_reseau(self, X):
         """
@@ -29,7 +32,7 @@ class DNN:
 
         outputs = [X]
 
-        h = X
+        h = copy.deepcopy(X)
         for rbm in self.dbn.rbms:
             h = rbm.entree_sortie_RBM(h)
             outputs.append(h)
@@ -58,6 +61,8 @@ class DNN:
                 X_batch = X_shuffled[ith_batch:ith_batch + len_batch]
                 y_batch = y_shuffled[ith_batch:ith_batch + len_batch]
 
+                m = X_batch.shape[0]
+
                 # Forward pass
                 outputs = self.entree_sortie_reseau(X_batch)
                 y_hat = outputs[-1]
@@ -65,10 +70,10 @@ class DNN:
                 c = y_hat - y_batch
 
                 # Backward pass
-                grad_w = outputs[-2].T @ c / len_batch
+                grad_w = outputs[-2].T @ c / m
                 grad_b = np.mean(c, axis=0)
 
-                weight = self.W_l
+                weight = copy.deepcopy(self.W_l)
 
                 self.W_l -= learning_rate * grad_w
                 self.b_l -= learning_rate * grad_b
@@ -77,12 +82,12 @@ class DNN:
                     x = outputs[l]
                     c = (c @ weight.T) * (x * (1 - x))
 
-                    x = outputs[l - 1]
-                    grad_w = x.T @ c / len_batch
+                    x_prev = outputs[l - 1]
+                    grad_w = x_prev.T @ c / m
                     grad_b = np.mean(c, axis=0)
 
                     rbm = self.dbn.rbms[l - 1]
-                    weight = rbm.W
+                    weight = copy.deepcopy(rbm.W)
 
                     # Update RBM weights and biases
                     rbm.W -= learning_rate * grad_w
@@ -93,7 +98,7 @@ class DNN:
             y_hat = outputs[-1]
 
             # Cross-entropy loss
-            loss = -np.sum(y_shuffled * np.log(y_hat)) / len_batch
+            loss = -np.sum(y_shuffled * np.log(y_hat)) / n_samples
 
             if epoch % 10 == 0 and verbose:
                 print(f"Epoch {epoch + 1}/{n_epochs}, Loss: {loss:.4f}")
@@ -101,6 +106,7 @@ class DNN:
     def test_DNN(self, X, labels):
         """
         Compute the error rate.
+
         Args:
             labels (np.ndarray).
         """
@@ -129,10 +135,10 @@ if __name__ == "__main__":
     dnn_pretrained = DNN(network_size=[nb_features, 200, 200, nb_classes])
     print(
         "----------------------------------------------------- Pre-training -----------------------------------------------------")
-    dnn_pretrained.pretrain_DNN(train_images, learning_rate=1e-2, len_batch=32, n_epochs=100)
+    dnn_pretrained.pretrain_DNN(train_images, learning_rate=1e-2, len_batch=32, n_epochs=10)
     print(
         "----------------------------------------------------- Back-Propragation -----------------------------------------------------")
-    dnn_pretrained.retropropagation(train_images, encoded_train_labels, learning_rate=1e-2, len_batch=32, n_epochs=200)
+    dnn_pretrained.retropropagation(train_images, encoded_train_labels, learning_rate=1e-2, len_batch=32, n_epochs=20)
     print(
         "----------------------------------------------------- Error Rate -----------------------------------------------------")
     error_rate = dnn_pretrained.test_DNN(test_images, test_labels)
