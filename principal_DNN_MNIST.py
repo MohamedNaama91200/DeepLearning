@@ -18,7 +18,7 @@ class DNN:
         self.n_classes = n_classes
         self.W = {i+1 : rbm.W for i,rbm in enumerate(self.dbn_without_classif_layer.rbms)}
         self.b = {i+1: rbm.b for i,rbm in enumerate(self.dbn_without_classif_layer.rbms)}
-        self.W[self.length_network-1] = np.random.randn(network_layer[-2], n_classes) * 0.01 # Poids couche classif (loi normale)
+        self.W[self.length_network-1] = np.random.randn(network_layer[-2], n_classes) * np.sqrt(0.01) # Poids couche classif (loi normale)
         self.b[self.length_network-1] = np.zeros(n_classes)  # Biais de la couche de classification
 
 
@@ -30,8 +30,9 @@ class DNN:
 
         sortie_couche = [X]
         h = X
-        for rbm in self.dbn_without_classif_layer.rbms :
-            h = rbm.entree_sortie_RBM(h)
+        #parcours des couches cachées
+        for l in range(1, self.length_network-1):
+            h = utils.sigmoid(h @ self.W[l] + self.b[l])
             sortie_couche.append(h)
 
         probs_sortie = utils.calcul_softmax(h @ self.W[self.length_network-1] + self.b[self.length_network-1])
