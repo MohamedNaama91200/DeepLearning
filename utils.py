@@ -13,7 +13,7 @@ def plot_images(X,database='BinaryAlphaDigit') :
 
     if database == 'BinaryAlphaDigit' :
         for image in X:
-            image = image.reshape(320)
+            image = image.reshape((20,16))
             plt.imshow(image, cmap='gray')
             plt.show()
 
