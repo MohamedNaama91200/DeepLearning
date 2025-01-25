@@ -131,10 +131,10 @@ if __name__ == "__main__":
     dnn_pretrained = DNN(network_size=[nb_features, 200, nb_classes])
     print(
         "----------------------------------------------------- Pre-training -----------------------------------------------------")
-    dnn_pretrained.pretrain_DNN(train_images, learning_rate=1e-1, len_batch=100, n_epochs=100)
+    dnn_pretrained.pretrain_DNN(train_images, learning_rate=1e-1, len_batch=10, n_epochs=4)
     print(
         "----------------------------------------------------- Back-Propragation -----------------------------------------------------")
-    dnn_pretrained.retropropagation(train_images, encoded_train_labels, learning_rate=1e-1, len_batch=100, n_epochs=200)
+    dnn_pretrained.retropropagation(train_images, encoded_train_labels, learning_rate=1e-1, len_batch=10, n_epochs=4)
     print(
         "----------------------------------------------------- Error Rate -----------------------------------------------------")
     error_rate = dnn_pretrained.test_DNN(test_images, test_labels)

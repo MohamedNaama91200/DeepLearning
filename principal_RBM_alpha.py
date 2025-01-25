@@ -1,8 +1,9 @@
 import numpy as np
 import copy
-
+import os
 from loading_data import lire_alpha_digit
-from utils import sigmoid, plot_images
+from utils import sigmoid, plot_images,save_images
+import pandas as pd
 
 """
 RBM Class Structure
@@ -76,14 +77,25 @@ class RBM:
 
         return images
 
+    @staticmethod
+    def test_rbm_hyperparameters():
+        os.makedirs("results/rbm/hyperparameters", exist_ok=True)
+        hidden_units_list = [50, 100, 200, 300]
+        caractere_list = [['A'], ['A', 'B'], ['A', 'B', 'C']]
+
+        for caractere in caractere_list:
+            X, size_img = lire_alpha_digit('data/binaryalphadigs.mat', caractere=caractere)
+            p = size_img[0] * size_img[1]
+
+            for q in hidden_units_list:
+                rbm = RBM(p, q)
+                rbm.train_RBM(X, learning_rate=1e-2, len_batch=10, n_epochs=1000)
+
+                images = rbm.generer_image_RBM(nb_images=10, nb_iter=200)
+                filename = f"results/rbm/hyperparameters/hidden_{q}_chars_{'-'.join(caractere)}.png"
+                save_images(images,size_img,filename)
+
+
 if __name__ == "__main__":
-    X, size_img = lire_alpha_digit('data/binaryalphadigs.mat', caractere=['A'])
 
-    nb_features = size_img[0] * size_img[1]
-    p, q = nb_features, 100
-    rbm = RBM(p, q)  # Instance of RBM
-
-    rbm.train_RBM(X, learning_rate=10 ** (-2), len_batch=10, n_epochs=1000, verbose=1)
-
-    generated_images = rbm.generer_image_RBM(nb_images=10, nb_iter=200)
-    plot_images(generated_images, size_img)
+    RBM.test_rbm_hyperparameters()
