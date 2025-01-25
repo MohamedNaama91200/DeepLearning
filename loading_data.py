@@ -71,4 +71,3 @@ if __name__ == "__main__":
     print("Labels shape:", labels[0])
     #print("Mat data length:", size_img)
     #print(mat_data)
-

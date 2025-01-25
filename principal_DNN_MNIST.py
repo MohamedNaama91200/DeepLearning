@@ -139,26 +139,3 @@ if __name__ == "__main__":
         "----------------------------------------------------- Error Rate -----------------------------------------------------")
     error_rate = dnn_pretrained.test_DNN(test_images, test_labels)
     print(f"Error rate: {error_rate * 100}%")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

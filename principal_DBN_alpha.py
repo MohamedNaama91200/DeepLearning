@@ -70,5 +70,3 @@ if __name__ == "__main__":
 
     generated_images = dbn.generer_image_DBN(nb_images=10, nb_iter=200)
     plot_images(generated_images, size_img)
-
-
