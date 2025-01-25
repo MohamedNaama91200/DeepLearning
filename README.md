@@ -1,2 +1,2 @@
 # DeepLearning
-DeepLearning : RBM,DBN
+DeepLearning : RBM,DBN, DNN

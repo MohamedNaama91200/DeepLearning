@@ -22,33 +22,45 @@ def load_idx3_ubyte(file_path='data/t10k-images.idx3-ubyte'):
         else:
             raise ValueError("Format de fichier .idx3-ubyte non reconnu")
 
-    data = np.copy(data) #Writeable =TRUE
+    data = np.copy(data)
 
     return data
 
 
-def lire_alpha_digit(file_path='data/binaryalphadigs.mat',caractere=['0']):
+def lire_alpha_digit(file_path='data/binaryalphadigs.mat', caractere=['0']):
+    assert caractere, "List not empty"
 
     elements = [str(i) for i in range(10)] + list(string.ascii_uppercase)
-    try :
-        mapping = {elements[k]: k for k in range(36)}
-        index_caractere_list = [mapping[c] for c in caractere]
-    except :
-        raise ValueError("Caractère non reconnu")
+
+    index_caractere_list = [elements.index(c) for c in caractere if c in elements]
+    if not index_caractere_list:
+        raise ValueError("One or many caracters are not recognized.")
 
     data = loadmat(file_path)
+
     size_img = data['dat'][0][0].shape
-    X=data['dat'][index_caractere_list[0]]
-    for i in range(1,len(index_caractere_list)) :
-        X_bis=data['dat'][index_caractere_list[i]]
-        X=np.concatenate((X,X_bis),axis=0)
+    nb_pixel = size_img[0] * size_img[1]
 
-    X=np.concatenate(X).reshape((X.shape[0],320))
+    X = data['dat'][np.array(index_caractere_list)]
+    X = np.concatenate(X)
+    X = np.concatenate(X).reshape((X.shape[0], nb_pixel))
 
-    return X,size_img
+    return X, size_img
 
+def process_images_MNIST(file_path='data/train-images-idx3-ubyte'):
+    """
+    Loads MNIST image data and reshapes them into a 2D array where each row corresponds to an image,
+    and binarizes the pixel values by normalizing and rounding.
+    """
+    images = load_idx3_ubyte(file_path)
 
-#For testing purpose
+    size_img = images[0].shape
+    images = images.reshape((images.shape[0], size_img[0] * size_img[1]))
+
+    images = np.round(images / 255)  # binary MNIST
+
+    return images, size_img
+
 if __name__ == "__main__":
     images = load_idx3_ubyte('data/t10k-images.idx3-ubyte')
     labels = load_idx3_ubyte('data/t10k-labels-idx1-ubyte')
@@ -59,4 +71,3 @@ if __name__ == "__main__":
     print("Labels shape:", labels[0])
     #print("Mat data length:", size_img)
     #print(mat_data)
-

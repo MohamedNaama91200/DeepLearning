@@ -1,46 +1,50 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
+
 """
 Useful functions
 """
 def sigmoid(x):
-    x = np.clip(x, -500, 500)  # Limite les valeurs de x pour éviter l'overflow
-
     return 1 / (1 + np.exp(-x))
 
-def plot_images(X,database='BinaryAlphaDigit') :
+def plot_images(X, size_img):
+    num_images = len(X)
 
-    if database == 'BinaryAlphaDigit' :
-        for image in X:
-            image = image.reshape((20,16))
-            plt.imshow(image, cmap='gray')
-            plt.show()
+    # Calculate the number of rows and columns for the subplots
+    cols = np.ceil(np.sqrt(num_images))
+    rows = np.ceil(num_images / cols)
 
-    if database == 'MNIST' :
-        for image in X:
-            image = image.reshape((28,28))
-            plt.imshow(image, cmap='gray')
-            plt.show()
+    fig, axes = plt.subplots(int(rows), int(cols), figsize=(cols * 2, rows * 2))
+    axes = axes.flatten()
 
-def calcul_softmax(X):
-    exp_x = np.exp(X - np.max(X, axis=1,keepdims=True))
-    sum_exp_x = np.sum(exp_x, axis=1,keepdims=True)
-    proba_sortie = exp_x / sum_exp_x
-    return proba_sortie
+    for i, image in enumerate(X):
+        image = image.reshape(size_img)
+        axes[i].imshow(image, cmap='gray')
 
+    for j in range(i + 1, len(axes)):
+        axes[j].axis('off')
 
-def calcul_entropie_croisee(y_pred, y_batch) :
-    y_batch = y_batch.to_numpy()  # Because data is very sparse
+    plt.tight_layout()
+    plt.show()
 
-    loss = -np.mean(y_batch * np.log(y_pred) + (1 - y_batch) * np.log(1 - y_pred))
+def one_hot_encoding(labels, nb_classes):
+    """
+    Converts a label vector into a one-hot encoded matrix.
+    """
+    one_hot = np.zeros((len(labels), nb_classes))
+    one_hot[np.arange(len(labels)), labels] = 1
+    return one_hot
 
-    return loss
+def calcul_softmax(x):
+    """
+    Args:
+        x (np.ndarray)
+    """
+    assert isinstance(x, np.ndarray), "Please use array."
 
-def binarisation(y) :
-
-    return pd.get_dummies(y, sparse=False)
-
-
-
-
+    if x.ndim == 1:
+        return np.exp(x) / np.sum(np.exp(x))
+    elif x.ndim == 2:
+        return np.exp(x) / np.sum(np.exp(x), axis=1, keepdims=True)
+    else:
+        raise ValueError("1 or 2 dimensional array.")
