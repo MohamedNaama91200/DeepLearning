@@ -16,6 +16,10 @@ Analysis
 """
 
 nb_classes = 10
+len_batch = 64
+learning_rate = 1e-2
+nb_iter_RBM = 100
+nb_iter_backprop = 200
 
 train_images, train_size_img = process_images_MNIST('data/train-images-idx3-ubyte')
 train_labels = load_idx3_ubyte('data/train-labels-idx1-ubyte')
@@ -52,8 +56,8 @@ to_study.loc[len(to_study)//2:, "Pre-trained"] = True
 def train_dnn(network_size, train_images, encoded_train_labels, pretrain=True):
     dnn = DNN(network_size=network_size)
     if pretrain:
-        dnn.pretrain_DNN(train_images, learning_rate=1e-1, len_batch=64, n_epochs=100, verbose=0)
-    dnn.retropropagation(train_images, encoded_train_labels, learning_rate=1e-1, len_batch=64, n_epochs=200, verbose=0)
+        dnn.pretrain_DNN(train_images, learning_rate=learning_rate, len_batch=len_batch, n_epochs=nb_iter_RBM, verbose=0)
+    dnn.retropropagation(train_images, encoded_train_labels, learning_rate=learning_rate, len_batch=len_batch, n_epochs=nb_iter_backprop, verbose=0)
     return dnn
 
 def run_analysis():
@@ -120,7 +124,7 @@ fig.suptitle('Number of Layers in DBN', fontsize=16)
 plt.tight_layout()
 plt.subplots_adjust(top=0.88)
 
-plt.savefig('img/Nb_Layers.png')
+plt.savefig(f'img/Nb_Layers_{int(learning_rate*100)}_{len_batch}.png')
 # plt.show()
 ######################################################################################################################
 pretrained = to_study.query("`Pre-trained` == True and Layers == 2 and `Train data` == 60000")
@@ -163,7 +167,7 @@ fig.suptitle('Number of Neurons in DBN', fontsize=16)
 plt.tight_layout()
 plt.subplots_adjust(top=0.88)
 
-plt.savefig('img/Nb_Neurons.png')
+plt.savefig(f'img/Nb_Neurons_{int(learning_rate*100)}_{len_batch}.png')
 # plt.show()
 ######################################################################################################################
 pretrained = to_study.query("`Pre-trained` == True and Layers == 2 and Neurons == 200")
@@ -206,5 +210,5 @@ fig.suptitle('Number of Data', fontsize=16)
 plt.tight_layout()
 plt.subplots_adjust(top=0.88)
 
-plt.savefig('img/Nb_Data.png')
+plt.savefig(f'img/Nb_Data_{int(learning_rate*100)}_{len_batch}.png')
 #plt.show()

@@ -61,11 +61,6 @@ def process_images_MNIST(file_path='data/train-images-idx3-ubyte'):
 
     return images, size_img
 
-
-
-
-
-#For testing purpose
 if __name__ == "__main__":
     images = load_idx3_ubyte('data/t10k-images.idx3-ubyte')
     labels = load_idx3_ubyte('data/t10k-labels-idx1-ubyte')
