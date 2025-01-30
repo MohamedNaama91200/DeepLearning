@@ -16,8 +16,8 @@ Analysis
 """
 
 nb_classes = 10
-len_batch = 64
-learning_rate = 1e-2
+len_batch = 10
+learning_rate = 1e-1
 nb_iter_RBM = 100
 nb_iter_backprop = 200
 
@@ -82,7 +82,7 @@ def run_analysis():
             print(f"Run - {i}/{len(to_study) - 1}")
 
 run_analysis()
-to_study.to_csv("Analysis.csv", index=False)
+to_study.to_csv(f"Analysis_{int(learning_rate*100)}_{len_batch}.csv", index=False)
 ######################################################################################################################
 pretrained = to_study.query("`Pre-trained` == True and Neurons == 200 and `Train data` == 60000")
 without_pretrained = to_study.query("`Pre-trained` == False and Neurons == 200 and `Train data` == 60000")
