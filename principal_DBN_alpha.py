@@ -1,9 +1,9 @@
 import copy
 import numpy as np
-
+import os
 from loading_data import lire_alpha_digit
 from principal_RBM_alpha import RBM
-from utils import plot_images
+from utils import plot_images,save_images
 
 """
 DBN Class Structure
@@ -61,12 +61,35 @@ class DBN:
 
         return images
 
+    @staticmethod
+    def test_dbn_hyperparameters():
+        os.makedirs("results/dbn/hyperparameters", exist_ok=True)
+
+        # Paramètres à tester
+        architectures = [
+            [320, 100],          # 1 couche
+            [320, 200, 100],     # 2 couches
+            [320, 400, 200, 100] # 3 couches
+        ]
+        character_sets = [['A'], ['A', 'B'], ['A', 'B', 'C']]
+
+        for arch in architectures:
+            for chars in character_sets:
+                X, size_img = lire_alpha_digit(caractere=chars)
+
+                dbn = DBN(arch)
+                dbn.train_DBN(X, learning_rate=1e-2, len_batch=10, n_epochs=1000)
+
+                # Génération des images
+                images = dbn.generer_image_DBN(nb_images=10, nb_iter=500)
+
+                filename = f"results/dbn/hyperparameters/layers_{len(arch) - 1}_chars_{'-'.join(chars)}.png"
+
+                save_images(images, size_img, filename=filename)
+
+
 if __name__ == "__main__":
-    X, size_img = lire_alpha_digit('data/binaryalphadigs.mat', caractere=['A'])
+    DBN.test_dbn_hyperparameters()
 
-    dbn_size = [320, 200, 100]
-    dbn = DBN(dbn_size)  # Instance of DBN
-    dbn.train_DBN(X, learning_rate=10 ** (-2), len_batch=10, n_epochs=1000, verbose=1)
 
-    generated_images = dbn.generer_image_DBN(nb_images=10, nb_iter=200)
-    plot_images(generated_images, size_img)
+
